@@ -32,7 +32,7 @@ Actual tested processing graph:
                                          |
               zlib.decompress declared kernel_size bytes starting at page_size
                                          |
-              decoded 6,841,260-byte QNX boot image (not a conventional Android FS)
+              decoded 6,841,260-byte (0x6863AC) QNX boot IMAGE FILE (includes 8-byte preboot)
                    [0,8)           preboot prefix
                    [8,0x108)       256-byte QNX startup header
                    [8,0x1A110)     whole startup (header + ARM code + data + trailer)
