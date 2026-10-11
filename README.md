@@ -47,6 +47,8 @@ Repeat `--component` to combine `rcc`, `mmx`, and `java`. The `java` component e
 
 Use `--variant auto|50|70|both`, `--expected-sha256`, and `--plan` to constrain or inspect runs.
 
+**New RCC original-raw evidence:** [MU1440 R14 complete RCC fs0 host-only image study](docs/MU1440_RCC_RAW_NOR_FS0_FORENSIC_R14_2026-10-12.md) separates original RCC Emergency/Root part 1/part 2, EFS and DSP, documents a source-dependent historical metainfo length mismatch and unknown occupied `BIOSCTRL` end area, and distinctly confirms both original MMX Stage-1 /50/ and /70/ no-change OEM wrapper roundtrips. This is a read-only forensic report, **not a general RCC NOR carver or MMX flash map**.
+
 ## Opaque/raw binary analysis
 
 For raw members such as Quickboot or an unrecognized DSP image:
