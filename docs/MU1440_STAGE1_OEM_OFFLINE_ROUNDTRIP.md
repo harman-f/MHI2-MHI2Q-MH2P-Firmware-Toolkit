@@ -122,3 +122,55 @@ This is a **documented performed experiment**, not a public general-purpose Stag
 | **9** | **2,984,374** | Yes | **YES, byte-for-byte** |
 
 Original and unchanged reconstructed **entire** container SHA-256 = `694c707035fea415842d222f2993e90aad69ca539c1b3608631bd8182ceffc6c`. Exact /70/ wrapper roundtrip has **not** been independently performed in this specific exercise.
+
+## 5. Separate benign OFFLINE differential test: what "patchable" actually proves
+
+Only **after** the exact no-change roundtrip, a private fixture changed one harmless, **non-executable diagnostic string** in the decoded /50/ startup (`init_pllA` -> `init_pllB`; one ASCII byte, kernel offset `0x13C70`). This is **not** a PLL-setting or ARM-instruction patch. The independent QNX startup checksum at kernel offset `0x1A10C` changed `0xDF031729` -> `0xDF031728`; the complete independent QNX ImageFS remained byte-identical. A fresh LE32 checksum check gave zero for both regions.
+
+The modified, private-only decoded kernel recompressed with level 9 to **2,984,373 bytes**, one fewer than stock. The actual compressed-byte count was reflected in wrapper `kernel_size` (offset `0x8`), and the verified compressed-stream CRC32 at outer `0x264` changed `0xFA04A09A` -> `0x9FC6E736`. Original extended page fields, including the **unexplained** `0x7FC`, were preserved *only as a test hypothesis*. Zero/FF padding was reconstructed for the actual new stream length. **Fresh independent re-decode PASS:** decoded kernel differed from the original only in the diagnostic character and its separate QNX checksum word; ImageFS was exactly unchanged; size remained `0x300000`; known checksum/CRC tests passed. No modified OEM wrapper is published here or qualified for boot.
+
+This establishes a narrow, valuable engineering fact: a single decoded startup byte can be carried through an original-format **fixed-size wrapper** and recovered precisely, **without rebuilding every QNX filesystem or the 2.29-GB archive**. It does NOT prove any modified wrapper is accepted by the real stage loader, any SWDL installer or boot hardware.
+
+## 6. Separate validation gates: build, repackage and install are NOT the same
+
+```text
+A. INNER QNX        startup last LE32 checksum; independent ImageFS last LE32 checksum
+        ↓
+B. zlib PAYLOAD     recompression can change many compressed bytes and its length
+        ↓
+C. MIFS1 WRAPPER    keep 3 MiB; kernel_size; observed compressed CRC32 at 0x264;
+                   preserve/analyze unknown 0x260, 0x400, 0x7FC and fill
+        ↓
+D. SWDL PACKAGE     actual variant/module path; metainfo2 FileSize / CheckSumN;
+                   hashes.txt / FinalScript checks / signed prefix / update.txt
+        ↓
+E. DEVICE ACCEPT    physical MMX partition selection, bootloader authentication,
+                   erase blocks, primary/recovery policy, validated recovery route
+```
+
+**A–C:** original /50/ no-change equality passed; one inert-string modified private fixture passed known local checks, but **opaque integrity fields may still invalidate it**. **D:** `tools/metainfo2.py` can audit or refresh supported payload `FileSize` and chunked `CheckSum`/`CheckSumN` SHA-1 (observed typical `CheckSumSize=524288`) on a private *existing* SWDL tree; `hashes.txt`, `FinalScriptChecksum`, `MetafileChecksum` and the protected signed-prefix/editable-tail boundary require separate attention. `tools/update_txt.py` audits/refreshed fields of an *existing* transaction only. Neither tool gives a signature bypass or certifies accepted package semantics. Full SWDL reference: [REPACK_AND_METAINFO.md](REPACK_AND_METAINFO.md).
+
+**E:** No public tool in this repository flashes a vehicle; the present evidence does **not** prove device-side acceptability or rollback of an altered Stage-1, nor NOR erase geometry or a unit-specific physical partition table.
+
+### Why one original ARM byte does not mean a four-byte NOR write
+
+The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the decoded startup can change many bytes in the compressed stream, its length, its CRC, header fields and package checksums. The conservative logical update unit is therefore the **complete 3-MiB Stage-1 module**, not the kernel-relative four-byte instruction location. However, it is *not proven* that the whole physical 64-MiB NOR must be erased/programmed: [MHI2_FLASH_LAYOUT_AND_RECOVERY.md](MHI2_FLASH_LAYOUT_AND_RECOVERY.md) records a **historical G11** 64-MiB MMX map with **separate** `KERNEL_PRIMARY=[0x00760000,0x00A60000)` (3 MiB) and `KERNEL_RECOVERY` (6 MiB). The matching size is suggestive, but this map was **not verified on this exact MU1440 unit**. A firmware archive member size, boot image load address and reported flash slot address are different kinds of evidence.
+
+## 7. Capability table, private evidence requirements and stopping rules
+
+| Task | Evidence / current tool | Status |
+| --- | --- | --- |
+| Original .7z inventory and selected /50/ /70/ raw copy | `extract_firmware.py`, manifests | VALIDATED |
+| Stage-1 custom wrapper read, zlib decode and ImageFS carve | `android_image.py` | VALIDATED read-only |
+| Same-source QNX startup/header/checksum provenance | original private /50/ and R12/R13 comparison | VALIDATED for exact original |
+| /50/ unchanged wrapper rebuild, level-9 zlib | private recorded check; original whole-byte identity | **PASS** (Python 3.13.5, zlib runtime 1.3.1) |
+| One inert ASCII byte differential rewrap/re-decode | private recorded check; original ImageFS untouched | **PASS**, host-only, not boot-qualified |
+| /70/ unchanged wrapper equality | need exact /70/ original wrapper as test input | NOT independently tested in this round |
+| Generic QNX6/ImageFS tree writer | not integrated | NOT IMPLEMENTED |
+| Extended header `0x260/0x400/0x7FC` semantics for modified images | one OEM sample is insufficient | UNKNOWN |
+| Exact-device NOR partition, selected slot and updater validation | historical table only, no original raw MMX NOR/PT | UNKNOWN |
+| Modified image accepted by BootROM/Quickboot/SWDL | NO live/boot/flash test | UNKNOWN |
+
+**Completion checklist for any future private, host-only wrapper study:** exact source member and variant; immutable file length and SHA-256; Python/zlib versions; all header and field offsets; exact compressed stream length/CRC/SHA; QNX header/entry/bounds; startup and ImageFS SHA/checksum; original padding lengths; byte-by-byte no-change outer comparison; independent freshly decoded equality; all unknown extended fields; explicit confirmation that no image was flashed or executed. Store raw firmware, reconstructed binaries, altered fixtures and absolute local paths in private storage only. Public reports may include short generic format metadata, hashes, validation steps and evidence grades.
+
+Related [MU1440 first-stage CPU-clock and qtime analysis](https://github.com/harman-f/mhi2_altscreen_carplay/pull/40) and [R12 source audit](https://github.com/harman-f/mhi2_altscreen_carplay/pull/38). These prove separate *analytical* properties; this wrapper reconstruction does not establish a safe early PLLX writer, voltage/OPP support, runtime qtime retiming, or BCT/SDRAM configuration.
