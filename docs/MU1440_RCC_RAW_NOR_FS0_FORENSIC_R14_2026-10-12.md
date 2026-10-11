@@ -70,7 +70,7 @@ The R14 private bundle separately included BOTH exact original MMX `mifs-stage1.
 
 ## 5. Next evidence gates
 
-1. Obtain authorized **original raw MMX NOR** and its exact unit/variant/provenance; separate from this complete RCC fs0 snapshot; preserve BCT/PT, recovery and primary data unchanged.
+1. **Exact candidate already listed but not included in R14 ZIP:** the R14 sanitized backup catalog records a **paired original 64-MiB MMX fs0** in `BACKUP-SNAPSHOT-10`, beside the included RCC image, SHA-256 `e9d65a0b18974054e119334e320ddc7963704830dedff4fbd957670e14ca7463`. Privately acquire and independently rehash **that exact original candidate** and its unit/variant provenance; do not substitute the RCC fs0. Its BCT/PT, recovery and primary regions remain **UNVERIFIED until the matching MMX raw bytes are separately inspected**. Preserve all source data unchanged.
 2. For RCC: independently validate compressed/decompressed IFS and ImageFS entry inventories of both root subparts and emergency with a matched reader, plus exact standalone original update-member hash/byte comparison. Do not infer that matching overall length implies matching bytes.
 3. Identify/retain the `BIOSCTRL` block's format and policy independently. Never treat unlisted/raw-non-FF space as safe to overwrite.
 4. For QNX root scanner development, add synthetic malformed and ambiguous header fixtures and support per-dump sidecar hints. Do not infer a universal candidate offset or a flash/write policy from this one instance.
