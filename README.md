@@ -47,6 +47,8 @@ Repeat `--component` to combine `rcc`, `mmx`, and `java`. The `java` component e
 
 Use `--variant auto|50|70|both`, `--expected-sha256`, and `--plan` to constrain or inspect runs.
 
+**Direct MMX fs0 original evidence (R15):** [MU1440 64-MiB native MMX partition/recovery and installed /70/ Stage-1 audit](docs/MU1440_MMX_FS0_ORIGINAL_NOR_AUDIT_R15_2026-10-12.md). The archive's native 13-entry PT proves physically separate 6-MiB Recovery and 3-MiB Primary. Primary matches the original /70/ module after only four transport-magic bytes differ. The extended outer header CRC at offset 0x7FC is now identified. Host-side only; not a validated altered-image boot, current-Unit identity or flash procedure.
+
 ## Opaque/raw binary analysis
 
 For raw members such as Quickboot or an unrecognized DSP image:
