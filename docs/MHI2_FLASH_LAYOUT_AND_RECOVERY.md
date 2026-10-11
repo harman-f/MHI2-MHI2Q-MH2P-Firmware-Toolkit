@@ -88,6 +88,8 @@ QNX documents partition types 177, 178, and 179 as QNX6/Power-Safe partitions. T
 
 For the MU1440 app image, the outer file is 1,438,613,504 bytes for both variants. The extractor counts 5,232 regular files, 484 directories, and 1,034 symlinks under /50/; /70/ has 5,334 files, 485 directories, and 1,034 symlinks. Regular-file byte totals are much smaller than the raw image and are not partition capacities. Do not infer unused space from those totals without the filesystem's allocation metadata.
 
+**R14 direct RCC fs0 image evidence:** [original 64-MiB raw image audit](MU1440_RCC_RAW_NOR_FS0_FORENSIC_R14_2026-10-12.md) validates Emergency QNX `0x20000..0x3B0D5C`, Root part 1 `0x540000..0xB9D048`, Root part 2 `0xBA0000..0x1AD061C`, exact FF-only gaps, and an additional populated `BIOSCTRL` block beginning `0x3F00000`. Its source-dependent sizes differ from several historical `ImageLayout2` advertised lengths. **RCC != MMX:** a raw RCC fs0 dump is not the missing exact-unit Tegra/MMX NOR/PT and does not validate `KERNEL_PRIMARY`. The R14 source separately supplies and proves byte-identical original unchanged /50/ and /70/ Stage-1 wrapper roundtrips.
+
 ## 4. RCC: what is known at address level
 
 The retained wiki's manual-restore example reports the following RCC NOR write targets for one MHI2 firmware example:
