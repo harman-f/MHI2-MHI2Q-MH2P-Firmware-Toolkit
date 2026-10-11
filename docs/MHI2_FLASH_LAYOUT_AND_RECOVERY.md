@@ -45,6 +45,10 @@ These are examples for this MU, not expected sizes for every train or firmware. 
 
 QNX's public documentation describes the IFS startup header as boot/startup metadata and distinguishes stored size from uncompressed ImageFS size. That distinction is essential: neither the QNX memory addresses nor the header sizes should be substituted for physical flash offsets.
 
+### Implication of the newly proven wrapper-only roundtrip
+
+The original MU1440 /50/ member is 3 MiB and now has a **byte-identical no-change offline wrapper roundtrip**. A private, harmless diagnostic-string edit was carried through zlib recompression, repaired known QNX startup checksum, compressed-stream CRC32 at outer `0x264`, outer size and fresh re-decode. This establishes package *manipulability*, **not** any actual flash requirement, NOR-sector write strategy, bootloader acceptance, or safety of clock changes. One decoded QNX byte need not map to one stored-byte change because the entire compressed stream may differ. The historical `KERNEL_PRIMARY` slot below is numerically 3 MiB but has not been correlated with an exact MU1440 raw NOR/PT. Neither an obligatory 64-MiB rewrite nor an authorized 3-MiB module-only flash has been proven. Full [offline process and evidence ladder](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md).
+
 ## 2. MMX NOR: historical address maps
 
 The following maps are copied from the retained wiki page “Manual FW update /50/ vs /70/ folders”. It calls both maps G11 and distinguishes a 2013 H22 unit from its “Normal” comparison. The wiki author says the H22 partitioning differed from what they had seen on G11 units and only assumes that this unit needs /50/ update folders. Treat this as an observed, hardware-specific map awaiting validation against a raw NOR dump, not as a general MHI2 map and not as proof that /50/ always means H22.
