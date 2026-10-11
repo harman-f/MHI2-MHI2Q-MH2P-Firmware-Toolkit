@@ -2,6 +2,8 @@
 
 **Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2, **variant 50** OEM wrapper, QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
 
+**R15 exact raw MMX follow-up, superseding earlier 0x7FC UNKNOWN reports:** [Original native PT, recovery/primary and installed header CRC audit](MU1440_MMX_FS0_ORIGINAL_NOR_AUDIT_R15_2026-10-12.md). In archived BACKUP-SNAPSHOT-06, the native KERNEL_PRIMARY [0x760000,0xA60000) is the original /70/ module byte-for-byte except four outer magic bytes; separate 6-MiB KERNEL_RECOVERY [0x160000,0x760000) and duplicated BCT/PT/loaders are present. The installed 0x7FC word equals CRC32(header[0:0x7FC]); the original /50/ and /70/ transport headers carry the installed-normalized magic variant CRC despite using alternate SWDL magic. The compressed-stream CRC at 0x264 was already known. 0x260 and 0x400 are not fully interpreted; altered-image/BootROM/SWDL acceptance, actual current-unit identity and flash erase geometry remain open. Earlier sections retain their historical evidence dates.
+
 ## 1. Where are the files and which component owns what?
 
 ```text
