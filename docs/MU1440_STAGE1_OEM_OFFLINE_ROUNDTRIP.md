@@ -2,6 +2,8 @@
 
 **Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2, **variant 50** OEM wrapper, QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
 
+**R14 extension:** A second, full original **variant-70** 3-MiB wrapper was privately supplied and independently reproduced byte-for-byte with the unchanged exact decoded /70/ kernel, zlib level 9 and original preserved header/padding. This closes the original **no-change** wrapper-equality question for *both* 50 and 70 in the tested runtime, without validating boot acceptance for modified images. Original /70/ compressed size is 2,984,342 B, compressed CRC32 at outer `0x264` is `0xD15EE9A7`; /50/ original values remain 2,984,374 B and `0xFA04A09A`. The original /50/ and /70/ extended header words also differ at opaque `0x7FC`; its altered-image meaning remains OPEN. For the separate original RCC fs0/NOR layout (not the missing MMX NOR), see [R14 RCC raw audit](MU1440_RCC_RAW_NOR_FS0_FORENSIC_R14_2026-10-12.md). The historical status table below describes the *earlier /50/-only measurement* unless explicitly superseded by this R14 extension.
+
 ## 1. Where are the files and which component owns what?
 
 ```text
