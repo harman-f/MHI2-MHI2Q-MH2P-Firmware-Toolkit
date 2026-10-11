@@ -82,6 +82,8 @@ QNX EFS and from the QNX6 filesystem used by the MMX app image. Extracted
 symlinks are recorded as metadata; the host export does not create live host
 symlinks.
 
+**New exact original RCC fs0 instance (2026-10-12):** [R14 64-MiB raw RCC NOR/QNX header and historical metainfo cross-audit](MU1440_RCC_RAW_NOR_FS0_FORENSIC_R14_2026-10-12.md). Three original header-bounded images confirm Emergency at `0x20000`, Root part 1 at `0x540000`, Root part 2 at `0xBA0000`. The full source-derived Root ends at `0x1AD061C` (**22,611,484 bytes**), whereas the retained *other-source* historical `ImageSize=22,321,528` would truncate **289,956 bytes** of this raw sample. An additional nonempty `BIOSCTRL` area at `0x3F00000` is outside the six archived rows. These are exact-source facts, not universal partitions or evidence for the **separate MMX** NOR.
+
 ## RCC backup dumps and variable IFS-root Stage-2 positions
 
 An update archive member such as `ifs-root.ifs` is not the same input as a full
