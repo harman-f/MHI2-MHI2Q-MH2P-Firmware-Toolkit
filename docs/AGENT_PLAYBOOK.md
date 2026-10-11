@@ -106,6 +106,10 @@ For an existing unpacked package tree:
 Do not imply that this rebuilds QNX6/IFS/EFS images. Consult
 `REPACK_AND_METAINFO.md` for the current capability boundary.
 
+## If the user says: "Explain MIFS Stage-1 rebuild or minimal NOR scope"
+
+Use [MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md) and keep archive, SWDL, MIFS wrapper, decoded QNX startup/ImageFS, RAM VA and actual NOR flash as distinct layers. The original /50/ wrapper has a measured byte-identical **host-only no-change** reconstruction; the one-byte inert-marker differential is NOT a target-accepted image. Check independent QNX additive checksums, actual zlib `kernel_size`, exact original outer CRC32 at `0x264`, opaque extended page words and SWDL metadata separately. The historical 3-MiB `KERNEL_PRIMARY` NOR region is **not** an exact MU1440 partition proof. No flash or clock write is part of this task.
+
 ## If the user says: "Analyze Quickboot / an unknown boot payload"
 
 Start read-only:

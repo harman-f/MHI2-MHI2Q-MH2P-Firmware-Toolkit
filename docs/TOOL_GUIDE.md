@@ -66,6 +66,10 @@ python .\tools\extract_firmware.py `
 Use `--expected-sha256` when you have an authoritative source hash. Use
 `--variant auto|50|70|both` only when the selected archive layout supports it.
 
+### Exact-target MIFS Stage-1 offline rebuild research
+
+For **where** the `MMX2/mifs-stage1/<variant>/default/mifs-stage1.img` files live, how `tools/android_image.py` decodes their 0x800 header page and zlib stream, and what must be validated to reconstruct an unchanged original 3-MiB wrapper, follow [MU1440 Stage-1 original offline roundtrip](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md). This documents a measured /50/ byte-identical no-change OEM reconstruction and a PRIVATE inert ASCII fixture only. The repository **does not** provide a general OEM image writer, a vehicle flashing tool or an altered-image acceptance guarantee.
+
 ## tools/mhi2-extract.sh
 
 **Purpose:** shell/menu wrapper around the extraction workflow.
