@@ -1,6 +1,6 @@
 # MU1440 MIFS Stage-1 — exact OEM offline unpack/repack (2026-10-11)
 
-**Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2, **variant 50** OEM wrapper, QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
+**Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2 OEM wrapper, **variants 50 and 70** (no-change reconstruction); the inert-string differential was performed on **variant 50 only**; QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
 
 **R15 supplied raw MMX follow-up, superseding earlier 0x7FC UNKNOWN reports:** [Native sample PT, recovery/primary and installed-header CRC audit](MU1440_MMX_FS0_ORIGINAL_NOR_AUDIT_R15_2026-10-12.md). In the SHA-256-identified supplied sample (privately labelled Snapshot-06; provenance not independently authenticated), the native KERNEL_PRIMARY [0x760000,0xA60000) is the original /70/ module byte-for-byte except four outer magic bytes; separate 6-MiB KERNEL_RECOVERY [0x160000,0x760000) and duplicated BCT/PT/loaders are present. The installed 0x7FC word equals CRC32(header[0:0x7FC]); the original /50/ and /70/ transport headers carry the installed-normalized magic variant CRC despite using alternate SWDL magic. The compressed-stream CRC at 0x264 was already known. 0x260 and 0x400 are not fully interpreted; altered-image/BootROM/SWDL acceptance, actual current-unit identity and flash erase geometry remain open. Earlier sections retain their historical evidence dates.
 
@@ -123,7 +123,7 @@ This is a **documented performed experiment**, not a public general-purpose Stag
 | 6 | 2,988,743 | Yes | No |
 | **9** | **2,984,374** | Yes | **YES, byte-for-byte** |
 
-Original and unchanged reconstructed **entire** container SHA-256 = `694c707035fea415842d222f2993e90aad69ca539c1b3608631bd8182ceffc6c`. Exact /70/ wrapper roundtrip has **not** been independently performed in this specific exercise.
+The original /50/ no-change full-container SHA-256 is `694c707035fea415842d222f2993e90aad69ca539c1b3608631bd8182ceffc6c`. The subsequent R14 **/70/** no-change full-wrapper comparison also passed byte-for-byte, SHA-256 `511bdba0f12e8a7510930ca689f7a9020656c777b11301c7eb70176825f7af0a` (zlib-9 compressed length 2,984,342 B). The private inert-string differential remains /50/-only.
 
 ## 5. Separate benign OFFLINE differential test: what "patchable" actually proves
 
@@ -150,7 +150,7 @@ E. DEVICE ACCEPT    physical MMX partition selection, bootloader authentication,
                    erase blocks, primary/recovery policy, validated recovery route
 ```
 
-**A–C:** original /50/ no-change equality passed; one inert-string modified private fixture passed known local checks, but **opaque integrity fields may still invalidate it**. **D:** `tools/metainfo2.py` can audit or refresh supported payload `FileSize` and chunked `CheckSum`/`CheckSumN` SHA-1 (observed typical `CheckSumSize=524288`) on a private *existing* SWDL tree; `hashes.txt`, `FinalScriptChecksum`, `MetafileChecksum` and the protected signed-prefix/editable-tail boundary require separate attention. `tools/update_txt.py` audits/refreshed fields of an *existing* transaction only. Neither tool gives a signature bypass or certifies accepted package semantics. Full SWDL reference: [REPACK_AND_METAINFO.md](REPACK_AND_METAINFO.md).
+**A–C:** original /50/ **and /70/** no-change equality passed; the inert-string modified /50/ fixture passed only the then-known local checks. Its newly identified installed-magic `0x7FC` CRC was not repaired/tested. It is NOT an accepted or completely checked modified boot image. **D:** `tools/metainfo2.py` can audit or refresh supported payload `FileSize` and chunked `CheckSum`/`CheckSumN` SHA-1 (observed typical `CheckSumSize=524288`) on a private *existing* SWDL tree; `hashes.txt`, `FinalScriptChecksum`, `MetafileChecksum` and the protected signed-prefix/editable-tail boundary require separate attention. `tools/update_txt.py` audits/refreshed fields of an *existing* transaction only. Neither tool gives a signature bypass or certifies accepted package semantics. Full SWDL reference: [REPACK_AND_METAINFO.md](REPACK_AND_METAINFO.md).
 
 **E:** No public tool in this repository flashes a vehicle; the present evidence does **not** prove device-side acceptability or rollback of an altered Stage-1, nor NOR erase geometry or a unit-specific physical partition table.
 
@@ -167,7 +167,7 @@ The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the dec
 | Same-source QNX startup/header/checksum provenance | original private /50/ and R12/R13 comparison | VALIDATED for exact original |
 | /50/ unchanged wrapper rebuild, level-9 zlib | private recorded check; original whole-byte identity | **PASS** (Python 3.13.5, zlib runtime 1.3.1) |
 | One inert ASCII byte differential rewrap/re-decode | private recorded check; original ImageFS untouched | **PASS**, host-only, not boot-qualified |
-| /70/ unchanged wrapper equality | need exact /70/ original wrapper as test input | NOT independently tested in this round |
+| /70/ unchanged wrapper equality | later R14 exact /70/ wrapper, zlib-9 and full-wrapper hash check | **PASS**, host-only; no modified-image boot validation |
 | Generic QNX6/ImageFS tree writer | not integrated | NOT IMPLEMENTED |
 | Extended header `0x260/0x400/0x7FC` | later R15 sample identifies `0x7FC` as installed-magic header CRC; `0x260/0x400` and other auth remain open | **0x7FC role verified on observed images; other policy UNKNOWN** |
 | Exact-device NOR partition, selected slot and updater validation | historical table only, no original raw MMX NOR/PT | UNKNOWN |
