@@ -47,6 +47,8 @@ Repeat `--component` to combine `rcc`, `mmx`, and `java`. The `java` component e
 
 Use `--variant auto|50|70|both`, `--expected-sha256`, and `--plan` to constrain or inspect runs.
 
+**New supplier-provided RCC raw-image evidence:** [MU1440 R14 complete RCC fs0 host-only image study](docs/MU1440_RCC_RAW_NOR_FS0_FORENSIC_R14_2026-10-12.md) separates header-identified RCC Emergency/Root part 1/part 2, EFS and DSP, documents a source-dependent historical metainfo length mismatch and unknown occupied `BIOSCTRL` end area, and distinctly confirms both original MMX Stage-1 /50/ and /70/ no-change OEM wrapper roundtrips. This is a read-only forensic report, **not a general RCC NOR carver or MMX flash map**.
+
 ## Opaque/raw binary analysis
 
 For raw members such as Quickboot or an unrecognized DSP image:
@@ -67,7 +69,7 @@ Audit mode is the default. `metainfo2.py` understands chunked `CheckSum`/`CheckS
 
 A full extracted-filesystem-to-stock-image rebuild is **not** yet claimed. QNX6/IFS/EFS writers and exact round-trip image geometry remain separate work. See `docs/REPACK_AND_METAINFO.md`.
 
-**New exact-target Stage-1 research:** [MU1440 original OEM wrapper unpack/repack walkthrough](docs/MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md) maps SWDL modules, explains `mifs-stage1.img` page/zlib/QNX layers and documents a private **byte-identical no-change /50/ 3-MiB wrapper roundtrip** plus a benign host-only byte-differential re-decode. This is a measured wrapper-only result, not a public image writer, altered-image boot qualification or flash procedure.
+**New exact-target Stage-1 research:** [MU1440 original OEM wrapper unpack/repack walkthrough](docs/MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md) maps SWDL modules, explains `mifs-stage1.img` page/zlib/QNX layers and documents a private **byte-identical no-change /50/ and /70/ 3-MiB wrapper roundtrips** plus a separate benign /50/-only host-side byte-differential re-decode. This is a measured wrapper-only result, not a public image writer, altered-image boot qualification or flash procedure.
 
 ## Contents
 
