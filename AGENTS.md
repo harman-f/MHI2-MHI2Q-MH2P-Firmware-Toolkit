@@ -17,6 +17,19 @@ private workstations, private caches, or unpublished firmware corpora.
   but their source/binaries must not be vendored here.
 - Keep generated analysis outputs outside Git. Prefer small synthetic fixtures for tests.
 
+## Mandatory MMX/RCC on-unit shell handoff boundary
+
+**This toolkit is a HOST-SIDE firmware inspection project.** Its host `bash`,
+Python, 7z, zlib and GNU tool availability must **never** be transferred to
+QNX MMX or RCC command instructions. Before authoring or handing over a target
+`.sh`/`.ksh`, a diagnostic ZIP, or even a short direct-shell command:
+
+- Consult the public exact-target [MU1440 QNX compatibility contract](https://github.com/harman-f/mhi2_altscreen_carplay/blob/main/docs/testing/MU1440_QNX_SHELL_COMPATIBILITY.md) and the corresponding CarPlay root `AGENTS.md` (tracked in its [agent/preflight PR #42](https://github.com/harman-f/mhi2_altscreen_carplay/pull/42)).
+- **Vehicle-proven MMX:** external `printf` fails with `cannot execute - No such file or directory`. Avoid it entirely. Also do not assume `sed`, `tr`, stock `sha256sum`/`tee`, GNU `date` options, `grep 'A\\|B'`, or an existing M.I.B. apps/sbin tree.
+- Keep MMX (Tegra) and RCC (Jacinto) separate. A command, `/dev` getter, mount or sensor proven on one is not automatically available on the other. Every program, option, path and output-format dependency requires evidence appropriate to the target board.
+- Run the CarPlay project's standalone HOST-ONLY QNX script checker (or exact copy) on **every** delivered on-unit shell script, including private external ZIP contents, with its `printf` regression fixture. Linux `bash -n`/mock tests do not establish QNX command compatibility. Preserve logs from the first actual hardware test. If any check cannot establish availability, stop or mark as an optional failure.
+- This is an **authoring/packaging gate**; it does not make QNX executables mandatory for this repository's normal host-side extraction tools and does not authorize any flashing, PLL, PMIC, QNX qtime or production-unit write.
+
 ## Safety and scope
 
 The default toolkit is host-side and read-only with respect to firmware inputs. Do not add
