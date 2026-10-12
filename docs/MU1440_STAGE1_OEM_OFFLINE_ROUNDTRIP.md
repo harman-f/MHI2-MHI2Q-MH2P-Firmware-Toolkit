@@ -2,7 +2,7 @@
 
 **Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2, **variant 50** OEM wrapper, QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
 
-**R15 exact raw MMX follow-up, superseding earlier 0x7FC UNKNOWN reports:** [Original native PT, recovery/primary and installed header CRC audit](MU1440_MMX_FS0_ORIGINAL_NOR_AUDIT_R15_2026-10-12.md). In archived BACKUP-SNAPSHOT-06, the native KERNEL_PRIMARY [0x760000,0xA60000) is the original /70/ module byte-for-byte except four outer magic bytes; separate 6-MiB KERNEL_RECOVERY [0x160000,0x760000) and duplicated BCT/PT/loaders are present. The installed 0x7FC word equals CRC32(header[0:0x7FC]); the original /50/ and /70/ transport headers carry the installed-normalized magic variant CRC despite using alternate SWDL magic. The compressed-stream CRC at 0x264 was already known. 0x260 and 0x400 are not fully interpreted; altered-image/BootROM/SWDL acceptance, actual current-unit identity and flash erase geometry remain open. Earlier sections retain their historical evidence dates.
+**R15 supplied raw MMX follow-up, superseding earlier 0x7FC UNKNOWN reports:** [Native sample PT, recovery/primary and installed-header CRC audit](MU1440_MMX_FS0_ORIGINAL_NOR_AUDIT_R15_2026-10-12.md). In the SHA-256-identified supplied sample (privately labelled Snapshot-06; provenance not independently authenticated), the native KERNEL_PRIMARY [0x760000,0xA60000) is the original /70/ module byte-for-byte except four outer magic bytes; separate 6-MiB KERNEL_RECOVERY [0x160000,0x760000) and duplicated BCT/PT/loaders are present. The installed 0x7FC word equals CRC32(header[0:0x7FC]); the original /50/ and /70/ transport headers carry the installed-normalized magic variant CRC despite using alternate SWDL magic. The compressed-stream CRC at 0x264 was already known. 0x260 and 0x400 are not fully interpreted; altered-image/BootROM/SWDL acceptance, actual current-unit identity and flash erase geometry remain open. Earlier sections retain their historical evidence dates.
 
 ## 1. Where are the files and which component owns what?
 
@@ -82,7 +82,7 @@ Full image build capability/status: [REPACK_AND_METAINFO](REPACK_AND_METAINFO.md
 | `0x260` | `0x00000001` | extended first-page word; **UNKNOWN** exact semantics |
 | `0x264` | `0xFA04A09A` | **VERIFIED** `CRC32` of precisely the `kernel_size` compressed bytes |
 | `0x400` | `0x00000675` | extended first-page word; **UNKNOWN** |
-| `0x7FC` | `0x89513F41` | extended first-page word/integrity policy; **UNKNOWN** |
+| `0x7FC` | `0x89513F41` | **R15 supersedes earlier unknown:** CRC32 of header prefix `[0:0x7FC)` after normalizing OEM transport magic to installed `ANDROID!`; further boot acceptance untested |
 
 zlib stream begins `78 DA`, then **1,610 original zero bytes** to next `0x800`-page alignment, then **157,696 original `0xFF` bytes** to file end `0x300000`. Do not assume generic Android `mkbootimg` preserves the extra original header-page words.
 
@@ -129,7 +129,7 @@ Original and unchanged reconstructed **entire** container SHA-256 = `694c707035f
 
 Only **after** the exact no-change roundtrip, a private fixture changed one harmless, **non-executable diagnostic string** in the decoded /50/ startup (`init_pllA` -> `init_pllB`; one ASCII byte, kernel offset `0x13C70`). This is **not** a PLL-setting or ARM-instruction patch. The independent QNX startup checksum at kernel offset `0x1A10C` changed `0xDF031729` -> `0xDF031728`; the complete independent QNX ImageFS remained byte-identical. A fresh LE32 checksum check gave zero for both regions.
 
-The modified, private-only decoded kernel recompressed with level 9 to **2,984,373 bytes**, one fewer than stock. The actual compressed-byte count was reflected in wrapper `kernel_size` (offset `0x8`), and the verified compressed-stream CRC32 at outer `0x264` changed `0xFA04A09A` -> `0x9FC6E736`. Original extended page fields, including the **unexplained** `0x7FC`, were preserved *only as a test hypothesis*. Zero/FF padding was reconstructed for the actual new stream length. **Fresh independent re-decode PASS:** decoded kernel differed from the original only in the diagnostic character and its separate QNX checksum word; ImageFS was exactly unchanged; size remained `0x300000`; known checksum/CRC tests passed. No modified OEM wrapper is published here or qualified for boot.
+The modified, private-only decoded kernel recompressed with level 9 to **2,984,373 bytes**, one fewer than stock. The actual compressed-byte count was reflected in wrapper `kernel_size` (offset `0x8`), and the verified compressed-stream CRC32 at outer `0x264` changed `0xFA04A09A` -> `0x9FC6E736`. Original extended page fields, including `0x7FC` (**role unknown when the inert experiment was performed**), were preserved *only as a test hypothesis*. The later R15 header-CRC identification means the modified fixture was not shown to have a valid installed-header CRC. Zero/FF padding was reconstructed for the actual new stream length. **Fresh independent re-decode PASS:** decoded kernel differed from the original only in the diagnostic character and its separate QNX checksum word; ImageFS was exactly unchanged; size remained `0x300000`; known checksum/CRC tests passed. No modified OEM wrapper is published here or qualified for boot.
 
 This establishes a narrow, valuable engineering fact: a single decoded startup byte can be carried through an original-format **fixed-size wrapper** and recovered precisely, **without rebuilding every QNX filesystem or the 2.29-GB archive**. It does NOT prove any modified wrapper is accepted by the real stage loader, any SWDL installer or boot hardware.
 
@@ -169,7 +169,7 @@ The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the dec
 | One inert ASCII byte differential rewrap/re-decode | private recorded check; original ImageFS untouched | **PASS**, host-only, not boot-qualified |
 | /70/ unchanged wrapper equality | need exact /70/ original wrapper as test input | NOT independently tested in this round |
 | Generic QNX6/ImageFS tree writer | not integrated | NOT IMPLEMENTED |
-| Extended header `0x260/0x400/0x7FC` semantics for modified images | one OEM sample is insufficient | UNKNOWN |
+| Extended header `0x260/0x400/0x7FC` | later R15 sample identifies `0x7FC` as installed-magic header CRC; `0x260/0x400` and other auth remain open | **0x7FC role verified on observed images; other policy UNKNOWN** |
 | Exact-device NOR partition, selected slot and updater validation | historical table only, no original raw MMX NOR/PT | UNKNOWN |
 | Modified image accepted by BootROM/Quickboot/SWDL | NO live/boot/flash test | UNKNOWN |
 
