@@ -1,4 +1,6 @@
-# MU1440 MIFS Stage-1 — exact OEM offline unpack/repack (2026-10-11)
+# MU1440 MIFS Stage-1 — original offline unpack/repack (historical 2026-10-11)
+
+> **Current sample-specific findings:** both `/50/` and `/70/` original no-change wrappers have subsequently been reconstructed byte-for-byte; `0x7FC` is identified as the installed-form header-prefix CRC32 in the hash-identified MMX sample. See [current concise format results](MU1440_STAGE1_AND_NOR_SAMPLE_FORMAT.md). The original `/50/` differential experiment below remains **host-only**, not modified-image boot acceptance. This document retains the earlier dated test details.
 
 **Scope:** exact `MHI2_ER_SKG13_P4526_MU1440` MMX2, **variant 50** OEM wrapper, QNX 6.5, offline forensic/build research. This guide documents a performed OEM **byte-identical no-change roundtrip** and a harmless ASCII-marker mutation with verified fresh re-decode. Neither an altered OEM image nor proprietary source bytes are shipped in this repository. **NO vehicle activity, flashing, clock writes, BootROM/SWDL acceptance test or overclock authorization.**
 
@@ -109,7 +111,7 @@ zlib stream begins `78 DA`, then **1,610 original zero bytes** to next `0x800`-p
 
 This is a **documented performed experiment**, not a public general-purpose Stage-1 writer or a deployable output format. Required input: *same-variant* original wrapper plus exact, immutable decoded kernel; keep first original `0x800` page unmodified.
 
-1. Confirm the original exact hashes and checksum/bounds listed above; preserve the complete first header page (including unknown `0x260/0x400/0x7FC` words).
+1. Confirm the original exact hashes and checksum/bounds listed above; preserve the complete first header page (including observed `0x260/0x400` fields and the now-identified `0x7FC` header CRC in its original value).
 2. In the tested host runtime, `zlib.compress(unchanged_kernel, 9)` returns the original **2,984,374-byte** stream. Record Python (3.13.5) and linked runtime zlib (1.3.1); equality is empirical and may differ with another compressor/version.
 3. Check **before any output** that `page_size + compressed_size <= 0x300000`. Compare compressed stream to the original and check its CRC32 against the original `0x264` field. In the no-change roundtrip the known `kernel_size` and CRC values remain identical.
 4. Reconstruct with **original preserved 0x800 header page**, the actual compressed stream at `0x800`, `0x00` fill until next 0x800 boundary, and `0xFF` fill until exactly `0x300000`.
@@ -121,13 +123,13 @@ This is a **documented performed experiment**, not a public general-purpose Stag
 | 6 | 2,988,743 | Yes | No |
 | **9** | **2,984,374** | Yes | **YES, byte-for-byte** |
 
-Original and unchanged reconstructed **entire** container SHA-256 = `694c707035fea415842d222f2993e90aad69ca539c1b3608631bd8182ceffc6c`. Exact /70/ wrapper roundtrip has **not** been independently performed in this specific exercise.
+Original and unchanged reconstructed **entire** container SHA-256 = `694c707035fea415842d222f2993e90aad69ca539c1b3608631bd8182ceffc6c`. At the time of **this original /50/ exercise**, `/70/` was not yet separately tested; a later independent original `/70/` no-change whole-wrapper equality passed. See [current results](MU1440_STAGE1_AND_NOR_SAMPLE_FORMAT.md).
 
 ## 5. Separate benign OFFLINE differential test: what "patchable" actually proves
 
 Only **after** the exact no-change roundtrip, a private fixture changed one harmless, **non-executable diagnostic string** in the decoded /50/ startup (`init_pllA` -> `init_pllB`; one ASCII byte, kernel offset `0x13C70`). This is **not** a PLL-setting or ARM-instruction patch. The independent QNX startup checksum at kernel offset `0x1A10C` changed `0xDF031729` -> `0xDF031728`; the complete independent QNX ImageFS remained byte-identical. A fresh LE32 checksum check gave zero for both regions.
 
-The modified, private-only decoded kernel recompressed with level 9 to **2,984,373 bytes**, one fewer than stock. The actual compressed-byte count was reflected in wrapper `kernel_size` (offset `0x8`), and the verified compressed-stream CRC32 at outer `0x264` changed `0xFA04A09A` -> `0x9FC6E736`. Original extended page fields, including the **unexplained** `0x7FC`, were preserved *only as a test hypothesis*. Zero/FF padding was reconstructed for the actual new stream length. **Fresh independent re-decode PASS:** decoded kernel differed from the original only in the diagnostic character and its separate QNX checksum word; ImageFS was exactly unchanged; size remained `0x300000`; known checksum/CRC tests passed. No modified OEM wrapper is published here or qualified for boot.
+The modified, private-only decoded kernel recompressed with level 9 to **2,984,373 bytes**, one fewer than stock. The actual compressed-byte count was reflected in wrapper `kernel_size` (offset `0x8`), and the verified compressed-stream CRC32 at outer `0x264` changed `0xFA04A09A` -> `0x9FC6E736`. Original extended page fields, including `0x7FC` (at that earlier date not yet identified as the installed-form header CRC), were preserved *only as a test hypothesis*. Zero/FF padding was reconstructed for the actual new stream length. **Fresh independent re-decode PASS:** decoded kernel differed from the original only in the diagnostic character and its separate QNX checksum word; ImageFS was exactly unchanged; size remained `0x300000`; known checksum/CRC tests passed. No modified OEM wrapper is published here or qualified for boot.
 
 This establishes a narrow, valuable engineering fact: a single decoded startup byte can be carried through an original-format **fixed-size wrapper** and recovered precisely, **without rebuilding every QNX filesystem or the 2.29-GB archive**. It does NOT prove any modified wrapper is accepted by the real stage loader, any SWDL installer or boot hardware.
 
@@ -139,7 +141,7 @@ A. INNER QNX        startup last LE32 checksum; independent ImageFS last LE32 ch
 B. zlib PAYLOAD     recompression can change many compressed bytes and its length
         ↓
 C. MIFS1 WRAPPER    keep 3 MiB; kernel_size; observed compressed CRC32 at 0x264;
-                   preserve/analyze unknown 0x260, 0x400, 0x7FC and fill
+                   preserve/analyze unknown 0x260 and 0x400; independently check installed-form 0x7FC header CRC; maintain correct padding
         ↓
 D. SWDL PACKAGE     actual variant/module path; metainfo2 FileSize / CheckSumN;
                    hashes.txt / FinalScript checks / signed prefix / update.txt
@@ -148,13 +150,13 @@ E. DEVICE ACCEPT    physical MMX partition selection, bootloader authentication,
                    erase blocks, primary/recovery policy, validated recovery route
 ```
 
-**A–C:** original /50/ no-change equality passed; one inert-string modified private fixture passed known local checks, but **opaque integrity fields may still invalidate it**. **D:** `tools/metainfo2.py` can audit or refresh supported payload `FileSize` and chunked `CheckSum`/`CheckSumN` SHA-1 (observed typical `CheckSumSize=524288`) on a private *existing* SWDL tree; `hashes.txt`, `FinalScriptChecksum`, `MetafileChecksum` and the protected signed-prefix/editable-tail boundary require separate attention. `tools/update_txt.py` audits/refreshed fields of an *existing* transaction only. Neither tool gives a signature bypass or certifies accepted package semantics. Full SWDL reference: [REPACK_AND_METAINFO.md](REPACK_AND_METAINFO.md).
+**A–C:** original /50/ and subsequently /70/ no-change equality passed in separate source-specific offline tests; one inert-string modified private fixture passed known local checks, but **opaque integrity fields may still invalidate it**. **D:** `tools/metainfo2.py` can audit or refresh supported payload `FileSize` and chunked `CheckSum`/`CheckSumN` SHA-1 (observed typical `CheckSumSize=524288`) on a private *existing* SWDL tree; `hashes.txt`, `FinalScriptChecksum`, `MetafileChecksum` and the protected signed-prefix/editable-tail boundary require separate attention. `tools/update_txt.py` audits/refreshed fields of an *existing* transaction only. Neither tool gives a signature bypass or certifies accepted package semantics. Full SWDL reference: [REPACK_AND_METAINFO.md](REPACK_AND_METAINFO.md).
 
 **E:** No public tool in this repository flashes a vehicle; the present evidence does **not** prove device-side acceptability or rollback of an altered Stage-1, nor NOR erase geometry or a unit-specific physical partition table.
 
 ### Why one original ARM byte does not mean a four-byte NOR write
 
-The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the decoded startup can change many bytes in the compressed stream, its length, its CRC, header fields and package checksums. The conservative logical update unit is therefore the **complete 3-MiB Stage-1 module**, not the kernel-relative four-byte instruction location. However, it is *not proven* that the whole physical 64-MiB NOR must be erased/programmed: [MHI2_FLASH_LAYOUT_AND_RECOVERY.md](MHI2_FLASH_LAYOUT_AND_RECOVERY.md) records a **historical G11** 64-MiB MMX map with **separate** `KERNEL_PRIMARY=[0x00760000,0x00A60000)` (3 MiB) and `KERNEL_RECOVERY` (6 MiB). The matching size is suggestive, but this map was **not verified on this exact MU1440 unit**. A firmware archive member size, boot image load address and reported flash slot address are different kinds of evidence.
+The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the decoded startup can change many bytes in the compressed stream, its length, its CRC, header fields and package checksums. The conservative logical update unit is therefore the **complete 3-MiB Stage-1 module**, not the kernel-relative four-byte instruction location. However, it is *not proven* that the whole physical 64-MiB NOR must be erased/programmed: [MHI2_FLASH_LAYOUT_AND_RECOVERY.md](MHI2_FLASH_LAYOUT_AND_RECOVERY.md) records a **historical G11** 64-MiB MMX map with **separate** `KERNEL_PRIMARY=[0x00760000,0x00A60000)` (3 MiB) and `KERNEL_RECOVERY` (6 MiB). The matching size is suggestive, and a separately supplied, SHA-identified MMX fs0 sample later confirmed that logical PRIMARY extent; it is **not** proof of this vehicle's current active slot or true NOR erase geometry. A firmware archive member size, boot image load address and reported flash slot address are different kinds of evidence.
 
 ## 7. Capability table, private evidence requirements and stopping rules
 
@@ -165,10 +167,10 @@ The OEM Stage-1 on storage is **zlib-compressed**. A single byte edit in the dec
 | Same-source QNX startup/header/checksum provenance | original private /50/ and R12/R13 comparison | VALIDATED for exact original |
 | /50/ unchanged wrapper rebuild, level-9 zlib | private recorded check; original whole-byte identity | **PASS** (Python 3.13.5, zlib runtime 1.3.1) |
 | One inert ASCII byte differential rewrap/re-decode | private recorded check; original ImageFS untouched | **PASS**, host-only, not boot-qualified |
-| /70/ unchanged wrapper equality | need exact /70/ original wrapper as test input | NOT independently tested in this round |
+| /70/ unchanged wrapper equality | later independent source-specific whole-wrapper comparison; see current results | **PASS**, host-only, no boot qualification |
 | Generic QNX6/ImageFS tree writer | not integrated | NOT IMPLEMENTED |
-| Extended header `0x260/0x400/0x7FC` semantics for modified images | one OEM sample is insufficient | UNKNOWN |
-| Exact-device NOR partition, selected slot and updater validation | historical table only, no original raw MMX NOR/PT | UNKNOWN |
+| Extended header fields | `0x7FC` = installed-form header-prefix CRC32 on observed original samples; `0x260`/`0x400` semantics and actual altered-image acceptance still open | **PARTIAL**, no boot qualification |
+| Logical PT / current device / selected slot / updater validation | later supplied hash-identified sample supplies native PT; current vehicle, active slot and write/rollback procedure still unverified | **SAMPLE ONLY**, target UNKNOWN |
 | Modified image accepted by BootROM/Quickboot/SWDL | NO live/boot/flash test | UNKNOWN |
 
 **Completion checklist for any future private, host-only wrapper study:** exact source member and variant; immutable file length and SHA-256; Python/zlib versions; all header and field offsets; exact compressed stream length/CRC/SHA; QNX header/entry/bounds; startup and ImageFS SHA/checksum; original padding lengths; byte-by-byte no-change outer comparison; independent freshly decoded equality; all unknown extended fields; explicit confirmation that no image was flashed or executed. Store raw firmware, reconstructed binaries, altered fixtures and absolute local paths in private storage only. Public reports may include short generic format metadata, hashes, validation steps and evidence grades.
