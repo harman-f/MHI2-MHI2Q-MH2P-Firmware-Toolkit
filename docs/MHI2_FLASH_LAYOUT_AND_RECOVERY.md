@@ -1,5 +1,7 @@
 # MHI2 flash layout, image sizes, boot chain, and recovery evidence
 
+> **Current boundary update:** A separately supplied, SHA-identified MU1440 MMX fs0 sample has since yielded a native 13-entry PT with 3-MiB PRIMARY and 6-MiB RECOVERY, and a *different* RCC fs0 sample supplies bounded original QNX header candidates. These are sample-specific results, not authenticated current-device evidence or a validated write/recovery procedure. See [concise Stage-1/NOR format results](MU1440_STAGE1_AND_NOR_SAMPLE_FORMAT.md). The historical wiki table below is retained for independent comparison.
+
 This is a deeper evidence note for the image-format guide. It separates three things that are easy to conflate:
 
 1. update-package member sizes and signatures;
@@ -47,11 +49,11 @@ QNX's public documentation describes the IFS startup header as boot/startup meta
 
 ### Implication of the newly proven wrapper-only roundtrip
 
-The original MU1440 /50/ member is 3 MiB and now has a **byte-identical no-change offline wrapper roundtrip**. A private, harmless diagnostic-string edit was carried through zlib recompression, repaired known QNX startup checksum, compressed-stream CRC32 at outer `0x264`, outer size and fresh re-decode. This establishes package *manipulability*, **not** any actual flash requirement, NOR-sector write strategy, bootloader acceptance, or safety of clock changes. One decoded QNX byte need not map to one stored-byte change because the entire compressed stream may differ. The historical `KERNEL_PRIMARY` slot below is numerically 3 MiB but has not been correlated with an exact MU1440 raw NOR/PT. Neither an obligatory 64-MiB rewrite nor an authorized 3-MiB module-only flash has been proven. Full [offline process and evidence ladder](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md).
+The original MU1440 /50/ and /70/ members are each 3 MiB and have **separate byte-identical no-change offline wrapper roundtrips**. A private, harmless diagnostic-string edit was carried through zlib recompression, repaired known QNX startup checksum, compressed-stream CRC32 at outer `0x264`, outer size and fresh re-decode. This establishes package *manipulability*, **not** any actual flash requirement, NOR-sector write strategy, bootloader acceptance, or safety of clock changes. One decoded QNX byte need not map to one stored-byte change because the entire compressed stream may differ. A subsequently inspected SHA-identified MMX fs0 sample provides direct logical PT evidence for a 3-MiB `KERNEL_PRIMARY` and matches the original /70/ SWDL member apart from four transport-magic bytes; this is **not** the currently installed vehicle's authenticated image or proof of an accepted update. Neither an obligatory 64-MiB rewrite nor an authorized 3-MiB module-only flash has been proven. Full [offline process and evidence ladder](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md).
 
 ## 2. MMX NOR: historical address maps
 
-The following maps are copied from the retained wiki page “Manual FW update /50/ vs /70/ folders”. It calls both maps G11 and distinguishes a 2013 H22 unit from its “Normal” comparison. The wiki author says the H22 partitioning differed from what they had seen on G11 units and only assumes that this unit needs /50/ update folders. Treat this as an observed, hardware-specific map awaiting validation against a raw NOR dump, not as a general MHI2 map and not as proof that /50/ always means H22.
+The following maps are copied from the retained wiki page “Manual FW update /50/ vs /70/ folders”. It calls both maps G11 and distinguishes a 2013 H22 unit from its “Normal” comparison. The wiki author says the H22 partitioning differed from what they had seen on G11 units and only assumes that this unit needs /50/ update folders. Treat this as a historical hardware-specific map; a later independent MMX sample reproduces the same logical G11-Normal PRIMARY/RECOVERY bounds but still does not establish current-Unit identity, erase geometry or universal MHI2 layout and not as proof that /50/ always means H22.
 
 All offsets are relative to the MMX NOR base as shown in that wiki table. End addresses are exclusive.
 
