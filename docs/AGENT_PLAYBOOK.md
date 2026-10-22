@@ -106,6 +106,18 @@ For an existing unpacked package tree:
 Do not imply that this rebuilds QNX6/IFS/EFS images. Consult
 `REPACK_AND_METAINFO.md` for the current capability boundary.
 
+## If the task produces a shell command or diagnostic package for an actual MMX/RCC QNX board
+
+**Stop and read root [AGENTS.md](../AGENTS.md), especially the mandatory on-unit shell
+handoff boundary, before generating the script or ZIP.** This toolkit's host-tool
+dependencies are not valid evidence of target command availability. Known MMX
+external `printf` is absent, and the CarPlay project's canonical MU1440
+QNX shell-compatibility report documents earlier real failures and alternative
+patterns. Audit every script and target-specific command/option before delivery;
+run the [exact pinned checker](https://github.com/harman-f/mhi2_altscreen_carplay/blob/a5e32b8e69f22335e60c0db49ddafdc7919a914f/tools/check_mu1440_target_shell.py) with its embedded negative-`printf` `--self-test` and `--check` against every delivered QNX script; mark Linux simulations
+HOST-ONLY and distinguish RCC from MMX. Do not give a flash/clock-modification
+shortcut as a replacement for a failed read-only diagnostic.
+
 ## If the user says: "Explain MIFS Stage-1 rebuild or minimal NOR scope"
 
 Use [MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md](MU1440_STAGE1_OEM_OFFLINE_ROUNDTRIP.md) and keep archive, SWDL, MIFS wrapper, decoded QNX startup/ImageFS, RAM VA and actual NOR flash as distinct layers. The original /50/ wrapper has a measured byte-identical **host-only no-change** reconstruction; the one-byte inert-marker differential is NOT a target-accepted image. Check independent QNX additive checksums, actual zlib `kernel_size`, exact original outer CRC32 at `0x264`, opaque extended page words and SWDL metadata separately. The historical 3-MiB `KERNEL_PRIMARY` NOR region is **not** an exact MU1440 partition proof. No flash or clock write is part of this task.
