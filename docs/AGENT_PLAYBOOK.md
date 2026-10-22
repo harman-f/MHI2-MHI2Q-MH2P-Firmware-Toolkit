@@ -114,7 +114,7 @@ dependencies are not valid evidence of target command availability. Known MMX
 external `printf` is absent, and the CarPlay project's canonical MU1440
 QNX shell-compatibility report documents earlier real failures and alternative
 patterns. Audit every script and target-specific command/option before delivery;
-run the standalone negative `printf` preflight; mark Linux simulations
+run the [exact pinned checker](https://github.com/harman-f/mhi2_altscreen_carplay/blob/a5e32b8e69f22335e60c0db49ddafdc7919a914f/tools/check_mu1440_target_shell.py) with its embedded negative-`printf` `--self-test` and `--check` against every delivered QNX script; mark Linux simulations
 HOST-ONLY and distinguish RCC from MMX. Do not give a flash/clock-modification
 shortcut as a replacement for a failed read-only diagnostic.
 
