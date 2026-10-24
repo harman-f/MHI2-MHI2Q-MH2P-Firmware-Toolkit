@@ -17,7 +17,7 @@ for name in ("filesystem_readers", "imagefs"):
     sys.modules[name] = module
     spec.loader.exec_module(module)
 
-from imagefs import inventory_imagefs  # noqa: E402
+from imagefs import inventory_imagefs, materialize_imagefs  # noqa: E402
 
 
 def attr(size: int, inode: int, mode: int) -> bytes:
@@ -59,6 +59,20 @@ class ImageFsTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unsafe ImageFS path"):
                 inventory_imagefs(image)
 
+    def test_materialize_reports_paths_relative_to_display_root(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            image = root / "test.imagefs"
+            make_image(image)
+            result = materialize_imagefs(
+                image, root / "filesystems" / "test", root / "metadata" / "test.json",
+                display_root=root,
+            )
+        self.assertEqual(result["tree"], "filesystems/test")
+        self.assertEqual(result["metadata"], "metadata/test.json")
+        self.assertEqual(result["file_count"], 1)
+
 
 if __name__ == "__main__":
     unittest.main()
+
