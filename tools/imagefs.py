@@ -222,11 +222,21 @@ def _materialize_imagefs(image: Path, output_tree: Path, metadata_path: Path,
             "bytes": sum(p.stat().st_size for p in output_tree.rglob("*") if p.is_file())}
 
 
-def materialize_imagefs(image: Path, output_tree: Path, metadata_path: Path) -> dict[str, Any]:
-    """Create a new tree; represent links and special nodes only in metadata."""
-    return _materialize_imagefs(image, output_tree, metadata_path, allow_incomplete=False)
+def materialize_imagefs(image: Path, output_tree: Path, metadata_path: Path,
+                        *, display_root: Path | None = None) -> dict[str, Any]:
+    """Create a new tree; represent links and special nodes only in metadata.
+
+    When ``display_root`` is supplied, report output paths relative to it. This keeps
+    extraction manifests relocatable while filesystem writes still use the exact paths.
+    """
+    result = _materialize_imagefs(image, output_tree, metadata_path, allow_incomplete=False)
+    if display_root is not None:
+        result["tree"] = output_tree.relative_to(display_root).as_posix()
+        result["metadata"] = metadata_path.relative_to(display_root).as_posix()
+    return result
 
 
 def materialize_imagefs_prefix(image: Path, output_tree: Path, metadata_path: Path) -> dict[str, Any]:
     """Materialize only complete files in a directory-validated ImageFS prefix."""
     return _materialize_imagefs(image, output_tree, metadata_path, allow_incomplete=True)
+
