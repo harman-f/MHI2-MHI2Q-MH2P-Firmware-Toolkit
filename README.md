@@ -22,6 +22,8 @@ For a tool-by-tool operational guide, including inputs, outputs, dependencies, f
 
 Current stable parsing paths include QNX6 MMX app/EFS trees (external qnxmount), RCC root IFS (external dumpifs + LZO), RCC/MMX MIFS Stage 2, Android-style Stage 1/EIFS modules, Emergency IFS, and metadata-only symlink preservation. Unknown image/binary payloads remain byte-exact and can be inspected with the read-only binary probe rather than being misrepresented as parsed filesystems. Bounded MH2P/Alpine `LZ4_` Stage-2 probes are available separately under `tools/experimental/`; they are intentionally partial and do not imply general MH2P support.
 
+The toolkit also contains staged readers for VAG FRF outer wrappers, ODX `FLASHDATA` payloads and Skoda FPK_E/Data_X containers. FRF unwrapping requires external FRF key material; ODX `AA` and FPK_E decoding require a separately supplied 16-byte inner AES key. See [`docs/VAG_CONTAINER_FORMATS.md`](docs/VAG_CONTAINER_FORMATS.md) for key formats, commands and validation limits.
+
 ## Quick start
 
 Requirements vary by selected component: Python 3.10+, 7-Zip for firmware archives, and separately provisioned qnxmount, dumpifs, LZO, or LZ4 support for paths that need them. Start with `docs/TOOL_GUIDE.md` to choose the right entry point, then `DEPENDENCIES.md`; this is not a self-contained offline bundle.
@@ -77,6 +79,7 @@ A full extracted-filesystem-to-stock-image rebuild is **not** yet claimed. QNX6/
 - `tests/`: synthetic/unit tests; no firmware images required.
 - `docs/FIRMWARE_IMAGE_PRIMER.md`: cross-family theory for package/container/filesystem layers, offsets, evidence levels and parser selection.
 - `docs/TOOL_GUIDE.md`: human- and agent-oriented tool catalog, decision flow, inputs/outputs, dependencies and examples.
+- `docs/VAG_CONTAINER_FORMATS.md`: FRF, ODX and FPK_E/Data_X workflow, key separation and support boundaries.
 - `docs/AGENT_PLAYBOOK.md`: use-case recipes such as unpack, Java/LSD, comparison, unknown images, MH2P and package rebuild.
 - `docs/MH2P_GUIDE.md`: MH2P/Alpine validation boundary and bounded Stage-2 workflow.
 - `docs/MHI2_IMAGE_FORMATS_AND_LAYOUT.md`: image/container layout and extraction model.
