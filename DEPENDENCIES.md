@@ -13,8 +13,16 @@ This inventory describes the current source tree and observed workflow. Pins do 
 | crcmod | qnxmount EFS/QNX checks | 1.7 observed | MIT; external Python dependency. |
 | lclevy/dumpifs | RCC compressed root IFS | commit `bb77c71bae3ebb54b8b7469ac810c890530f3213` | BSD-2-Clause in reviewed checkout; external. |
 | python-lzo | RCC LZO parsing and Stage-2 LZO1Z decoding | 1.15 observed in the validated environment | GPL-2.0-only in reviewed package metadata. Not bundled. The extractor imports it in-process for selected modes. Resolve compatibility before distributing a combined GPL-3.0-only environment. |
+| cryptography | AES-128-CBC for VAG FPK_E/Data_X and ODX AA decoding | Python package; optional for this workflow | External runtime dependency; not bundled. Install only when using `tools/fpke_datax.py` or its ODX AA decode mode. |
 
 This repository does not vendor qnxmount, dumpifs, python-lzo, python-lz4, 7-Zip or jxe2jar. The rebuilt metainfo helper also does not vendor or require the historical ConfigObj/six dependency pair. `requirements.txt` contains only kaitaistruct and crcmod; installing it alone does not enable every parser.
+
+The VAG container readers are standalone project tools. FRF outer decryption
+uses the algorithm from `bri3d/VW_Flash` at commit
+`293f46d782bae2ced930497889b71eb782f122cb` under BSD-2-Clause; see
+`dependencies/THIRD_PARTY_NOTICES.md`. The matching FRF key material is an
+external runtime file and is not redistributed. ODX AA and FPK_E/Data_X use a
+separate user-supplied 16-byte AES key; no key is bundled or defaulted.
 
 ## Experimental parser dependency
 

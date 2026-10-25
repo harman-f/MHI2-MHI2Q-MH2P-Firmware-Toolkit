@@ -18,6 +18,9 @@ is unclear, read `FIRMWARE_IMAGE_PRIMER.md` first. For task-oriented recipes suc
 5. **MHI2 LSD JXE to JAR:** use `tools/jxe2jar/convert-jxe.ps1`.
 6. **MH2P/Alpine `LZ4_` Stage-2 image:** use the bounded tools under
    `tools/experimental/` and read `docs/MH2P_GUIDE.md` first.
+7. **VAG FRF, ODX or Skoda FPK_E/Data_X update:** follow
+   [`VAG_CONTAINER_FORMATS.md`](VAG_CONTAINER_FORMATS.md) and use the
+   `tools/frf_odx_extract.py` / `tools/fpke_datax.py` staged workflow.
 
 If a tool cannot prove the expected format or bounds, stop and preserve the input.
 Do not weaken validation simply to make one firmware sample pass.
